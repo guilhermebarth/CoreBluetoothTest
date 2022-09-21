@@ -7,6 +7,7 @@ class CoreBluetoothTest: NSObject, ObservableObject {
     private var peripherals: [CBPeripheral] = []
     @Published var peripheralsNames: [String] = []
     private var devideCount: Int = 0
+    private var beaconDetector = BeaconDetector()
     
     override init() {
         super.init()
@@ -54,9 +55,7 @@ extension CoreBluetoothTest: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
         print("Conexão realizada com sucesso com: \(peripheral.identifier)")
-        let beaconDetector = BeaconDetector()
         beaconDetector.startScanning(myID: peripheral.identifier)
-        
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {

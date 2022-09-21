@@ -40,7 +40,7 @@ class BeaconDetector: CLLocationManager, ObservableObject {
     }
     
     func startScanning(myID: UUID) {
-        let constraint = CLBeaconIdentityConstraint(uuid: myID, major: 1, minor: 50000)
+        let constraint = CLBeaconIdentityConstraint(uuid: myID, major: 123, minor: 456)
         let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: constraint, identifier: "MyBeacon")
         
         locationManager?.startMonitoring(for: beaconRegion)
@@ -50,21 +50,6 @@ class BeaconDetector: CLLocationManager, ObservableObject {
         print("RangedBeaconConstraints \(locationManager?.rangedBeaconConstraints)")
     }
     
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion)
-    {
-        
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion)
-    {
-        
-    }
-    func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?,
-        withError error: Error)
-    {
-        
-    }
-    
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon],
         in region: CLBeaconRegion
     ) {
@@ -72,7 +57,6 @@ class BeaconDetector: CLLocationManager, ObservableObject {
             print("Encontrou Beacon")
             update(distance: beacon.proximity)
         } else {
-            print("Não localizou o beacon")
         }
     }
     
