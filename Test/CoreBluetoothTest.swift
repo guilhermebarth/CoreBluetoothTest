@@ -1,13 +1,14 @@
 import SwiftUI
 import CoreBluetooth
 
+
 class CoreBluetoothTest: NSObject, ObservableObject {
     
     private var centralManager: CBCentralManager?
     private var peripherals: [CBPeripheral] = []
     @Published var peripheralsNames: [String] = []
     private var devideCount: Int = 0
-    private var beaconDetector = BeaconDetector()
+    @ObservedObject private var beaconDetector = BeaconDetector()
     
     override init() {
         super.init()
@@ -33,6 +34,8 @@ extension CoreBluetoothTest: CBCentralManagerDelegate {
             //let nearbyInteraction = NearbyInteractionTest()
             //nearbyInteraction.startupMPC(identifier: peripheral.identifier.uuidString)
             
+            calculateRssi(rssi: Double(RSSI))
+            
             central.connect(peripheral)
             print("Efetuando conexão \(peripheral.state)")
             
@@ -45,8 +48,24 @@ extension CoreBluetoothTest: CBCentralManagerDelegate {
         }
     }
     
+    func calculateRssi(rssi: Double)
+    {
+        var txPower = -59.0 //hard coded power value. Usually ranges between -59 to -65
+
+        var ratio = rssi * 1.0 / txPower
+        if (ratio < 1.0) {
+            print("Distância do Beacon: \(pow(ratio,10))")
+        }
+        else {
+            var distance =  (0.89976) * pow(ratio,7.7095) + 0.111
+            print("Distância do Beacon: \(distance)")
+        }
+        
+        //pow(10, ((-56-Double(rssi))/(10*2)))*3.2808
+    }
+    
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        print("Omg! conexão falhada com: \(peripheral.identifier), Status: \(peripheral.state)")
+        print("Perdido conexao com: \(peripheral.identifier), Status: \(peripheral.state)")
         // 3 = Desconectando
         print("Error: \(error)")
         central.connect(peripheral)
@@ -55,11 +74,12 @@ extension CoreBluetoothTest: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         
         print("Conexão realizada com sucesso com: \(peripheral.identifier)")
-        beaconDetector.startScanning(myID: peripheral.identifier)
+        //calculateRssi(rssi: Double(peripheral.readRSSI() ?? 0))
+        //beaconDetector.startScanning(myID: peripheral.identifier)
     }
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        print("deu M")
+        print("Ocorreu um erro:")
         print(error as Any)
     }
 }

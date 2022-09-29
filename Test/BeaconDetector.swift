@@ -14,9 +14,11 @@ extension BeaconDetector: CLLocationManagerDelegate{
 }
 
 class BeaconDetector: CLLocationManager, ObservableObject {
-    var didChange = PassthroughSubject<Void, Never>()
+    var objectWillChange = ObservableObjectPublisher()
     var locationManager: CLLocationManager?
     var lastDistance = CLProximity.unknown
+    var beaconId: UUID = UUID()
+    
     
     override init() {
         super.init()
@@ -33,18 +35,21 @@ class BeaconDetector: CLLocationManager, ObservableObject {
             if CLLocationManager.isMonitoringAvailable(for:
                                                         CLBeaconRegion.self) {
                 if CLLocationManager.isRangingAvailable() {
-                    // we are ready to go
+                    print("Teste")
                 }
             }
         }
     }
     
     func startScanning(myID: UUID) {
-        let constraint = CLBeaconIdentityConstraint(uuid: myID, major: 123, minor: 456)
+    
+        let constraint = CLBeaconIdentityConstraint(uuid: myID, major: 1, minor: 4)
+
         let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: constraint, identifier: "MyBeacon")
         
         locationManager?.startMonitoring(for: beaconRegion)
         locationManager?.startRangingBeacons(satisfying: constraint)
+        //locationManager?.startRangingBeacons(in: beaconRegion)
         
         print("Regioes \(locationManager?.monitoredRegions)")
         print("RangedBeaconConstraints \(locationManager?.rangedBeaconConstraints)")
@@ -57,13 +62,21 @@ class BeaconDetector: CLLocationManager, ObservableObject {
             print("Encontrou Beacon")
             update(distance: beacon.proximity)
         } else {
+            print("Beacon list is empty")
         }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon],
+                         satisfying beaconConstraint: CLBeaconIdentityConstraint)
+    {
+        print("didRange: \(beacons) ----- BeaconConstraint: \(beaconConstraint)")
+        
     }
     
     func update(distance: CLProximity) {
         lastDistance = distance
         print("ultima distancia: \(lastDistance)")
-        didChange.send(())
+        self.objectWillChange.send()
     }
     
 }
